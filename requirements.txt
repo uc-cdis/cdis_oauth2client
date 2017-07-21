@@ -1,0 +1,3 @@
+Flask==0.10.1
+requests==2.5.2
+-e git+https://git@github.com/uc-cdis/cdis-python-utils.git@0.1.3#egg=cdispyutils
