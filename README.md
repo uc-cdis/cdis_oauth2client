@@ -5,11 +5,14 @@ microservices such as gdcapi.
 
 ## Installation
 
-`cdis_oauth2client` is intended for use as a dependency of packages such as
-gdcapi, and it is sufficient to list it in the `requirements.txt` where it is
-needed. It can also be installed on its own using:
+Requirements must be installed with:
 
-    pip install .
+    pip install -r requirements.txt
+
+Then, this module can be installed with:
+
+    python setup.py build
+    python setup.py install
 
 ## Usage
 
