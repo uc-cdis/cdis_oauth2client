@@ -7,9 +7,10 @@ Defines the OAuth2Client class for use by CDIS internal microservices.
 import urllib
 import urlparse
 
+from cdispyutils.log import get_logger
 import requests
 
-from cdispyutils.log import get_logger
+from .exceptions import OAuth2Error
 
 
 _PDC = 'https://bionimbus-pdc.opensciencedatacloud.org/api/oauth2/'
@@ -68,14 +69,6 @@ class OAuth2Client(object):
         })
         return urlparse.urljoin(self.oauth_provider, 'authorize') + '?' + tail
 
-    def get_authorization_url(self):
-        """
-        Simply return the authorization URL.
-
-        Helper function useful for adding Flask URL rules, for example.
-        """
-        return self.authorization_url
-
     def _post_to_internal_oauth(self, data):
         """
         Post data to the URL at ``self.internal_oauth``.
@@ -105,15 +98,16 @@ class OAuth2Client(object):
 
         An example of the credentials returned:
 
-            {u'access_token': u'9ydWQi1SqGU82hAGf8M0JoNJbXhxQ1',
-             u'expires_in': 3600,
-             u'refresh_token': u'Ll6PfksjrCSJHtkEQV41mRRbR4tUxU',
-             u'scope': u'user',
-             u'token_type': u'Bearer'}
+            {
+                u'access_token': u'9ydWQi1SqGU82hAGf8M0JoNJbXhxQ1',
+                u'expires_in': 3600, u'refresh_token':
+                u'Ll6PfksjrCSJHtkEQV41mRRbR4tUxU', u'scope': u'user',
+                u'token_type': u'Bearer'
+            }
 
         :param code: usually flask.request.args.get('code')
         :type code: str
-        :return: dictionary of OAuth credentials
+        :return: dictionary of OAuth credentials (see above)
         :rtype: dict
         """
         # Formulate the data for posting to the OAuth provider.
@@ -125,6 +119,19 @@ class OAuth2Client(object):
             'redirect_uri': self.redirect_uri
         }
         return self._post_to_internal_oauth(data)
+
+    def get_access_token(self, code):
+        """
+        Get specifically the access_token from the OAuth token response.
+        """
+        token_response = self.get_token(code)
+        access_token = token_response.get('access_token')
+        if not access_token:
+            raise OAuth2Error(
+                message='did not receive access token',
+                json=token_response
+            )
+        return access_token
 
     def refresh_token(self, refresh_token):
         """

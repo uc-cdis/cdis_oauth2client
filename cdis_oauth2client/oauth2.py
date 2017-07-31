@@ -1,53 +1,55 @@
 """
 cdis_oauth2client.oauth2
-
-Provides :py:func:``authorize`` to perform the OAuth2 authorization. Note that
-this module should be kept entirely Flask-agnostic, i.e. Flask should not be
-imported here and :py:func:``authorize`` should accept an ``OAuth2Client`` with
-a ``get_token`` method, in order to modularize the logic.
 """
 
+import flask
 import requests
 
 from .exceptions import OAuth2Error
 
 
-def authorize(oauth_client, user_api, code):
+def get_username(user_api=None):
     """
-    Authorize an OAuth client.
+    Given the URL for the user API, call user-api to get the username for the
+    current flask session using the current access_token cookie.
 
-    :param oauth_client: the OAuth2 client to authorize
-    :type oauth_client: OAuth2Client
+    For this function to get the username, the user must already be
+    authenticated with an access_token cookie stored in the flask session:
+
+        flask.session['access_token']
+
+    If the `user_api` argument is not provided, get the user API URL from:
+
+        flask.current_app.config['user_api']
+
     :param user_api: URL for the user API
     :type user_api: str
-    :param code: will usually be flask.request.args.get('code')
-    :type code: str
-    :return: the username
+    :return: the username:
     :rtype: str
     """
-    if not code:
-        raise OAuth2Error('no authorization code provided')
-
-    token_response = oauth_client.get_token(code)
-    access_token = token_response.get('access_token')
-    if not access_token:
-        raise OAuth2Error(
-            message='did not receive access token in response from client',
-            json=token_response
-        )
-
+    if user_api is None:
+        user_api = flask.current_app.config['user_api']
+    url = user_api + 'user/'
     try:
-        headers = {'Authorization': 'Bearer ' + access_token}
-        request = requests.get(user_api + 'user/', headers=headers)
-        user_api_response = request.json()
-    except requests.RequestException as e:
-        raise OAuth2Error(
-            'failed to get user info due to requests exception: {}'.format(e)
+        access_token = flask.session['access_token']
+    except KeyError:
+        raise OAuth2Error('access_token cookie does not exist')
+    headers = {'Authorization': 'Bearer ' + access_token}
+    try:
+        username = (
+            requests.get(url, headers=headers)
+            .json()
+            .get('username')
         )
+    except requests.RequestException as e:
+        msg = 'failed to get user info due to requests exception: {}'
+        raise OAuth2Error(msg.format(e))
+    # TODO: can this except be safely removed? It might be desirable to catch
+    # OAuth2Errors resulting from KeyError or RequestException above, which
+    # could make this dangerous. Could additionally catch KeyError from the
+    # `get(username)` if it is important here to not let most exceptions
+    # through.
     except Exception as e:
-        raise OAuth2Error('failed due to unexpected exception: {}'.format(e))
-
-    username = user_api_response.get('username')
-    if not username:
-        raise OAuth2Error(json=user_api_response)
+        msg = 'failed due to unexpected exception: {}'
+        raise OAuth2Error(msg.format(e))
     return username
