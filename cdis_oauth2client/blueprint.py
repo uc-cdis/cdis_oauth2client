@@ -18,8 +18,6 @@ Exports:
 import flask
 from flask import current_app
 
-from .oauth2 import authorize
-
 
 blueprint = flask.Blueprint('oauth', 'oauth_v0')
 
