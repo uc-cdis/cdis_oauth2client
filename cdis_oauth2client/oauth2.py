@@ -20,7 +20,7 @@ def get_username(user_api=None):
 
     If the `user_api` argument is not provided, get the user API URL from:
 
-        flask.current_app.config['user_api']
+        flask.current_app.config['USER_API']
 
     :param user_api: URL for the user API
     :type user_api: str
@@ -28,12 +28,20 @@ def get_username(user_api=None):
     :rtype: str
     """
     if user_api is None:
-        user_api = flask.current_app.config['user_api']
-    url = user_api + 'user/'
+        try:
+            user_api = flask.current_app.config['USER_API']
+        except KeyError as e:
+            raise OAuth2Error("'USER_API' not set in flask.current_app.config")
+
     try:
         access_token = flask.session['access_token']
     except KeyError:
-        raise OAuth2Error('access_token cookie does not exist')
+        code = flask.request.args.get('code')
+        if code is None:
+            raise OAuth2Error('could not obtain access token')
+        access_token = flask.current_app.oauth2.get_access_token(code)
+
+    url = user_api + 'user/'
     headers = {'Authorization': 'Bearer ' + access_token}
     try:
         username = (

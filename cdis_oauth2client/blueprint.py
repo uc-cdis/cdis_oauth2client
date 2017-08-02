@@ -35,8 +35,7 @@ def do_authorize():
     received from the OAuth2Client.
     """
     code = flask.request.args.get('code')
-    client = current_app.oauth2
-    flask.session['access_token'] = client.get_access_token(code)
+    flask.session['access_token'] = current_app.oauth2.get_access_token(code)
     return ''
 
 
