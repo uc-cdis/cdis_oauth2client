@@ -44,20 +44,12 @@ def get_username(user_api=None):
     url = user_api + 'user/'
     headers = {'Authorization': 'Bearer ' + access_token}
     try:
-        username = (
-            requests.get(url, headers=headers)
-            .json()
-            .get('username')
-        )
+        response = requests.get(url, headers=headers).json()
     except requests.RequestException as e:
-        msg = 'failed to get user info due to requests exception: {}'
+        msg = 'failed to get username due to requests exception: {}'
         raise OAuth2Error(msg.format(e))
-    # TODO: can this except be safely removed? It might be desirable to catch
-    # OAuth2Errors resulting from KeyError or RequestException above, which
-    # could make this dangerous. Could additionally catch KeyError from the
-    # `get(username)` if it is important here to not let most exceptions
-    # through.
-    except Exception as e:
-        msg = 'failed due to unexpected exception: {}'
-        raise OAuth2Error(msg.format(e))
+    username = response.get('username')
+    if username is None:
+        msg = 'username missing from response: {}'
+        raise OAuth2Error(msg.format(response))
     return username
