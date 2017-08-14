@@ -18,8 +18,6 @@ Exports:
 import flask
 from flask import current_app
 
-from .oauth2 import authorize
-
 
 blueprint = flask.Blueprint('oauth', 'oauth_v0')
 
@@ -33,14 +31,11 @@ def get_authorization_url():
 @blueprint.route('/authorize', methods=['GET'])
 def do_authorize():
     """
-    Call ``authorize`` to authorize the user (authorize returns the username)
-    and store the username in the Flask session.
+    Call ``authorize`` to authorize the user by storing the access_token cookie
+    received from the OAuth2Client.
     """
-    flask.session['username'] = authorize(
-        current_app.oauth2,
-        current_app.config['USER_API'],
-        flask.request.args.get('code')
-    )
+    code = flask.request.args.get('code')
+    flask.session['access_token'] = current_app.oauth2.get_access_token(code)
     return ''
 
 
@@ -48,7 +43,7 @@ def do_authorize():
 def logout_oauth():
     """
     Log out the user by clearing the Flask session (thus removing the
-    username from the session).
+    access_token from the session).
     """
     flask.session.clear()
     return ''

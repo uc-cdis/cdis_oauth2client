@@ -1,53 +1,55 @@
 """
 cdis_oauth2client.oauth2
-
-Provides :py:func:``authorize`` to perform the OAuth2 authorization. Note that
-this module should be kept entirely Flask-agnostic, i.e. Flask should not be
-imported here and :py:func:``authorize`` should accept an ``OAuth2Client`` with
-a ``get_token`` method, in order to modularize the logic.
 """
 
+import flask
 import requests
 
 from .exceptions import OAuth2Error
 
 
-def authorize(oauth_client, user_api, code):
+def get_username(user_api=None):
     """
-    Authorize an OAuth client.
+    Given the URL for the user API, call user-api to get the username for the
+    current flask session using the current access_token cookie.
 
-    :param oauth_client: the OAuth2 client to authorize
-    :type oauth_client: OAuth2Client
+    For this function to get the username, the user must already be
+    authenticated with an access_token cookie stored in the flask session:
+
+        flask.session['access_token']
+
+    If the `user_api` argument is not provided, get the user API URL from:
+
+        flask.current_app.config['USER_API']
+
     :param user_api: URL for the user API
     :type user_api: str
-    :param code: will usually be flask.request.args.get('code')
-    :type code: str
-    :return: the username
+    :return: the username:
     :rtype: str
     """
-    if not code:
-        raise OAuth2Error('no authorization code provided')
-
-    token_response = oauth_client.get_token(code)
-    access_token = token_response.get('access_token')
-    if not access_token:
-        raise OAuth2Error(
-            message='did not receive access token in response from client',
-            json=token_response
-        )
+    if user_api is None:
+        try:
+            user_api = flask.current_app.config['USER_API']
+        except KeyError as e:
+            raise OAuth2Error("'USER_API' not set in flask.current_app.config")
 
     try:
-        headers = {'Authorization': 'Bearer ' + access_token}
-        request = requests.get(user_api + 'user/', headers=headers)
-        user_api_response = request.json()
-    except requests.RequestException as e:
-        raise OAuth2Error(
-            'failed to get user info due to requests exception: {}'.format(e)
-        )
-    except Exception as e:
-        raise OAuth2Error('failed due to unexpected exception: {}'.format(e))
+        access_token = flask.session['access_token']
+    except KeyError:
+        code = flask.request.args.get('code')
+        if code is None:
+            raise OAuth2Error('could not obtain access token')
+        access_token = flask.current_app.oauth2.get_access_token(code)
 
-    username = user_api_response.get('username')
-    if not username:
-        raise OAuth2Error(json=user_api_response)
+    url = user_api + 'user/'
+    headers = {'Authorization': 'Bearer ' + access_token}
+    try:
+        response = requests.get(url, headers=headers).json()
+    except requests.RequestException as e:
+        msg = 'failed to get username due to requests exception: {}'
+        raise OAuth2Error(msg.format(e))
+    username = response.get('username')
+    if username is None:
+        msg = 'username missing from response: {}'
+        raise OAuth2Error(msg.format(response))
     return username
