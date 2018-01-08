@@ -12,9 +12,9 @@ setup(
     ],
     install_requires=[
         'Flask==0.10.1',
-        'requests==2.5.2',
+        'requests>=2.5.2,<3.0.0',
     ],
     dependency_links=[
-        "git+https://git@github.com/uc-cdis/cdis-python-utils.git@0.1.3#egg=cdispyutils",  # noqa
+        "git+https://git@github.com/uc-cdis/cdis-python-utils.git@0.1.6#egg=cdispyutils",  # noqa
     ],
 )
