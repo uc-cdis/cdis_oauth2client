@@ -32,15 +32,17 @@ def get_username(user_api=None):
             user_api = flask.current_app.config['USER_API']
         except KeyError as e:
             raise OAuth2Error("'USER_API' not set in flask.current_app.config")
-
-    try:
-        access_token = flask.session['access_token']
-    except KeyError:
-        code = flask.request.args.get('code')
-        if code is None:
-            raise OAuth2Error('could not obtain access token')
-        access_token = flask.current_app.oauth2.get_access_token(code)
-
+    auth_header = flask.request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('bearer'):
+        access_token = auth_header.split(' ')[1]
+    else:
+        try:
+            access_token = flask.session['access_token']
+        except KeyError:
+            code = flask.request.args.get('code')
+            if code is None:
+                raise OAuth2Error('could not obtain access token')
+            access_token = flask.current_app.oauth2.get_access_token(code)
     url = user_api + 'user/'
     headers = {'Authorization': 'Bearer ' + access_token}
     try:
