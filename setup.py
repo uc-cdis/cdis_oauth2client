@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='cdis_oauth2client',
-    version='0.1.0',
+    version='0.1.4',
     description='Flask blueprint and utilities for oauth2 client',
     url='https://github.com/uc-cdis/cdis_oauth2client',
     license='Apache',
@@ -11,10 +11,8 @@ setup(
         'cdis_oauth2client',
     ],
     install_requires=[
-        'Flask==0.10.1',
+        'Flask',
         'requests>=2.5.2,<3.0.0',
-    ],
-    dependency_links=[
-        "git+https://git@github.com/uc-cdis/cdis-python-utils.git@0.1.6#egg=cdispyutils",  # noqa
+        'cdispyutils>=0.2.11',
     ],
 )

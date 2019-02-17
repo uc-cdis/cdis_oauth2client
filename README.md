@@ -1,18 +1,13 @@
 # cdis_oauth2client
 
-A Python module providing a Flask blueprint and associated functions for CDIS
+A Python module providing a Flask blueprint and associated functions for CTDS
 microservices such as gdcapi.
 
 ## Installation
 
-Requirements must be installed with:
+Add this library to your project with:
 
-    pip install -r requirements.txt
-
-Then, this module can be installed with:
-
-    python setup.py build
-    python setup.py install
+    pipenv install cdis_oauth2client
 
 ## Usage
 
@@ -23,3 +18,9 @@ import cdis_oauth2client
 app = Flask(__name__)
 app.register_blueprint(cdis_oauth2client.blueprint)
 ```
+
+## Development
+
+To start development of this library, run:
+
+    pipenv install --dev
