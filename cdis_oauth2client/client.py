@@ -4,8 +4,8 @@ cdis_oauth2client.client
 Defines the OAuth2Client class for use by CDIS internal microservices.
 """
 
-import urllib
-import urlparse
+import urllib.request, urllib.parse, urllib.error
+import urllib.parse
 
 from cdispyutils.log import get_logger
 import requests
@@ -61,13 +61,13 @@ class OAuth2Client(object):
     @property
     def authorization_url(self):
         """Return the URL at which the authorization can be obtained."""
-        tail = urllib.urlencode({
+        tail = urllib.parse.urlencode({
             'client_id': self.client_id,
             'redirect_uri': self.redirect_uri,
             'response_type': 'code',
             'scope': self.scope
         })
-        return urlparse.urljoin(self.oauth_provider, 'authorize') + '?' + tail
+        return urllib.parse.urljoin(self.oauth_provider, 'authorize') + '?' + tail
 
     def _post_to_internal_oauth(self, data):
         """
@@ -78,7 +78,7 @@ class OAuth2Client(object):
         ``data`` should look like).
         """
         try:
-            url = urlparse.urljoin(self.internal_oauth, 'token')
+            url = urllib.parse.urljoin(self.internal_oauth, 'token')
             return requests.post(url, data=data).json()
         except requests.RequestException as e:
             msg = 'request failed to reach oauth provider: ' + str(e.message)

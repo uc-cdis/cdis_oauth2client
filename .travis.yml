@@ -1,7 +1,7 @@
 language: python
 dist: xenial
 python:
-- 2.7
+- 3.6
 install:
 - pip install pipenv
 - pipenv install --dev --deploy --python `which python`
@@ -17,7 +17,7 @@ deploy:
   skip_existing: true
   skip_cleanup: true
   on:
-    python: 2.7
+    python: 3.6
     repo: uc-cdis/cdis_oauth2client
     tags: true
   password:
