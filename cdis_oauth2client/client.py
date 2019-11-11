@@ -5,7 +5,6 @@ Defines the OAuth2Client class for use by CDIS internal microservices.
 """
 
 import urllib.request, urllib.parse, urllib.error
-import urllib.parse
 
 from cdispyutils.log import get_logger
 import requests
