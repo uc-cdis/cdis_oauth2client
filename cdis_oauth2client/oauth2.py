@@ -29,29 +29,29 @@ def get_username(user_api=None):
     """
     if user_api is None:
         try:
-            user_api = flask.current_app.config['USER_API']
+            user_api = flask.current_app.config["USER_API"]
         except KeyError as e:
             raise OAuth2Error("'USER_API' not set in flask.current_app.config")
-    auth_header = flask.request.headers.get('Authorization')
-    if auth_header and auth_header.startswith('bearer'):
-        access_token = auth_header.split(' ')[1]
+    auth_header = flask.request.headers.get("Authorization")
+    if auth_header and auth_header.startswith("bearer"):
+        access_token = auth_header.split(" ")[1]
     else:
         try:
-            access_token = flask.session['access_token']
+            access_token = flask.session["access_token"]
         except KeyError:
-            code = flask.request.args.get('code')
+            code = flask.request.args.get("code")
             if code is None:
-                raise OAuth2Error('could not obtain access token')
+                raise OAuth2Error("could not obtain access token")
             access_token = flask.current_app.oauth2.get_access_token(code)
-    url = user_api + 'user/'
-    headers = {'Authorization': 'Bearer ' + access_token}
+    url = user_api + "user/"
+    headers = {"Authorization": "Bearer " + access_token}
     try:
         response = requests.get(url, headers=headers).json()
     except requests.RequestException as e:
-        msg = 'failed to get username due to requests exception: {}'
+        msg = "failed to get username due to requests exception: {}"
         raise OAuth2Error(msg.format(e))
-    username = response.get('username')
+    username = response.get("username")
     if username is None:
-        msg = 'username missing from response: {}'
+        msg = "username missing from response: {}"
         raise OAuth2Error(msg.format(response))
     return username
