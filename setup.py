@@ -18,17 +18,11 @@ def get_version():
 
 
 setup(
-    name='cdis_oauth2client',
+    name="cdis_oauth2client",
     version=get_version(),
-    description='Flask blueprint and utilities for oauth2 client',
-    url='https://github.com/uc-cdis/cdis_oauth2client',
-    license='Apache',
-    packages=[
-        'cdis_oauth2client',
-    ],
-    install_requires=[
-        'Flask',
-        'requests~=2.5',
-        'cdispyutils>=1.0.3',
-    ],
+    description="Flask blueprint and utilities for oauth2 client",
+    url="https://github.com/uc-cdis/cdis_oauth2client",
+    license="Apache",
+    packages=["cdis_oauth2client",],
+    install_requires=["Flask", "requests~=2.5", "cdispyutils>=1.0.3",],
 )
