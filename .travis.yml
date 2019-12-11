@@ -1,12 +1,13 @@
 language: python
 dist: xenial
 python:
-- 2.7
+- 3.6
 install:
 - pip install pipenv
 - pipenv install --dev --deploy --python `which python`
 - pipenv graph
-script: pipenv run python setup.py test
+- pipenv run python setup.py install
+script: pipenv run py.test -v
 before_deploy:
 - sed -i.bak "s/=get_version()/='$TRAVIS_TAG'/g" setup.py
 - cat setup.py
@@ -17,7 +18,7 @@ deploy:
   skip_existing: true
   skip_cleanup: true
   on:
-    python: 2.7
+    python: 3.6
     repo: uc-cdis/cdis_oauth2client
     tags: true
   password:

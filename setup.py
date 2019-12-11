@@ -29,6 +29,6 @@ setup(
     install_requires=[
         'Flask',
         'requests~=2.5',
-        'cdispyutils~=0.2',
+        'cdispyutils>=1.0.3',
     ],
 )
