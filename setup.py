@@ -24,5 +24,5 @@ setup(
     url="https://github.com/uc-cdis/cdis_oauth2client",
     license="Apache",
     packages=["cdis_oauth2client",],
-    install_requires=["Flask", "requests~=2.5", "cdispyutils>=1.0.3",],
+    install_requires=["Flask", "requests~=2.5", "cdispyutils>=1.0.4",],
 )
