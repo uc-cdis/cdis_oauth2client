@@ -1,8 +1,0 @@
-tests/*
-LICENSE
-NOTICE
-README.md
-.gitignore
-.travis.yml
-.github/*
-pull_request_template.md
