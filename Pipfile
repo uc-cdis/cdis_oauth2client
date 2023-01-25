@@ -10,4 +10,4 @@ pytest = "*"
 cdis-oauth2client = {editable = true,path = "."}
 
 [requires]
-python_version = "3.6"
+python_version = "3.9"
