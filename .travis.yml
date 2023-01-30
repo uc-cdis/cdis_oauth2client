@@ -1,13 +1,13 @@
 language: python
 dist: xenial
 python:
-- 3.6
+- 3.9
 install:
 - pip install pipenv
 - pipenv install --dev --deploy --python `which python`
 - pipenv graph
 - pipenv run python setup.py install
-script: pipenv run py.test -v
+script: pipenv run py.test -v tests
 before_deploy:
 - sed -i.bak "s/=get_version()/='$TRAVIS_TAG'/g" setup.py
 - cat setup.py
