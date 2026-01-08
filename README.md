@@ -28,4 +28,4 @@ app.register_blueprint(cdis_oauth2client.blueprint)
 
 To start development of this library, run:
 
-    poetry install
+    poetry install --with dev
